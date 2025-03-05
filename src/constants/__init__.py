@@ -1,6 +1,7 @@
 import os
 from datetime import date
 from dotenv import load_dotenv
+from typing import Dict, List
 
 load_dotenv()  # 
 
@@ -19,11 +20,37 @@ ARTIFACT_DIR: str = "artifact"
 ---------------------------------------------------------------
 """
 # Raw data ingestion
-URL = os.getenv("source_url")
-LOCAL_DATA_FILE = "raw_data.zip"
+URL: str = os.getenv("source_url")
+LOCAL_DATA_FILE: str = "raw_data.zip"
 RAW_DATA_INGESTION_DIR_NAME: str = "raw_data_ingestion"
 RAW_DATA_INGESTION_INGESTED_DIR: str = "ingested"
-UNZIP_DIR = "data"
+UNZIP_DIR: str = "data"
 
-
-
+"""
+---------------------------------------------------------------
+ Data Processing related constants start with PROCESS_DATA var name
+---------------------------------------------------------------
+"""
+PROCESS_DATA_SAMPLING_CONFIG: Dict[str, str] = {
+    'acc_x': "mean",
+    'acc_y': "mean",
+    'acc_z': "mean",
+    'gyr_x': "mean",
+    'gyr_y': "mean",
+    'gyr_z': "mean",
+    'participant': "last",
+    'label': "last",
+    'category': "last",
+    'set': "last"
+}
+PROCESS_DATA_SENSOR_COLUMNS: List[str] = [
+    "acc_x", "acc_y", "acc_z",
+    "gyr_x", "gyr_y", "gyr_z",
+    "participant", "label", "category", "set"
+]
+PROCESS_DATA_DEFAULT_RESAMPLING_FREQUENCY: str = "200ms"
+PROCESS_DATA_ACCELEROMETER_PATTERN: str = "Accelerometer"
+PROCESS_DATA_GYROSCOPE_PATTERN: str = "Gyroscope"
+PROCESS_DATA_INTERIM_DATA_DIR: str = "interim"
+PROCESS_DATA_META_MOTION_DIR: str = "MetaMotion"
+PROCESS_DATA_PROCESSED_FILE_NAME: str = "01_data_processed.pkl"

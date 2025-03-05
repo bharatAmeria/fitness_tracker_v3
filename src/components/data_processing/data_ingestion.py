@@ -6,6 +6,7 @@ import gdown
 import pandas as pd
 
 """ Importing Modules"""
+from typing import Optional
 from src.exception import MyException
 from src.logger import logging
 
@@ -32,7 +33,7 @@ class IngestData:
         except Exception as e:
             raise MyException(e, sys)
 
-    def download_file(self):
+    def download_file(self) -> str:
         """
         Fetch data from the url and return DataIngestionArtifact
         Returns:
@@ -60,7 +61,7 @@ class IngestData:
         except Exception as e:
             raise MyException(e, sys)
 
-    def extract_zip_file(self):
+    def extract_zip_file(self) -> None:
         """
         Extract the downloaded zip file.
 
@@ -89,23 +90,5 @@ class IngestData:
             logging.info(f"Extracted zip file to {unzip_path}")
             logging.info(f"Successfully extracted zip file to {unzip_path}")
 
-        except Exception as e:
-            raise MyException(e, sys)
-
-    def get_data(self) -> pd.DataFrame:
-        """
-        Read the data from the extracted CSV file
-
-        Returns:
-            pd.DataFrame: The loaded dataset
-
-        Raises:
-            MyException: If reading the data fails
-        """
-        try:
-            df = pd.read_csv(self.data_ingestion_config.local_data_file)
-            
-            logging.info(f"Loaded data from {self.data_ingestion_config.local_data_file}")
-            return df
         except Exception as e:
             raise MyException(e, sys)
