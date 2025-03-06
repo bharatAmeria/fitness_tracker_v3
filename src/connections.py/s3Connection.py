@@ -1,4 +1,4 @@
-import boto3
+# import boto3
 import pandas as pd
 import logging
 from src.logger import logging
@@ -14,12 +14,12 @@ class s3_operations:
         Initialize the s3_operations class with AWS credentials and S3 bucket details.
         """
         self.bucket_name = bucket_name
-        self.s3_client = boto3.client(
-            's3',
-            aws_access_key_id=aws_access_key,
-            aws_secret_access_key=aws_secret_key,
-            region_name=region_name
-        )
+        # self.s3_client = boto3.client(
+        #     's3',
+        #     aws_access_key_id=aws_access_key,
+        #     aws_secret_access_key=aws_secret_key,
+        #     region_name=region_name
+        # )
         logging.info("Data Ingestion from S3 bucket initialized")
 
     def fetch_file_from_s3(self, file_key):
