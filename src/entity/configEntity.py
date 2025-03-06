@@ -32,3 +32,9 @@ class MakeDatasetConfig:
                                             )
     file_name: str = os.path.join(training_pipeline_config.artifact_dir, RAW_DATA_INGESTION_DIR_NAME, PROCESS_DATA_INTERIM_DATA_DIR, PROCESS_DATA_PROCESSED_FILE_NAME)
 
+@dataclass
+class RemoveOutlierConfig:
+    """Configuration for outlier removing"""
+    root_dir = os.path.join(training_pipeline_config.artifact_dir, RAW_DATA_INGESTION_DIR_NAME, OUTLIER_INTERIM_DATA_DIR, OUTLIER_PROCESSED_FILE_NAME)
+    outlier_removed_file_name = os.path.join(training_pipeline_config.artifact_dir, RAW_DATA_INGESTION_DIR_NAME, OUTLIER_INTERIM_DATA_DIR, OUTLIER_REMOVED_FILE_NAME)
+    outlier_reports = os.path.join(training_pipeline_config.artifact_dir, REPORTS_PATH, OUTLIER_REPORTS)

@@ -12,6 +12,7 @@ from src.entity.artifactEntity import *
 from src.entity.configEntity import *
 from src.data.data_ingestion import IngestData
 from src.data.data_processing import MakeDataset
+from src.data.removeOutlier import RemoveOutlier
 
 load_dotenv()
 
@@ -19,6 +20,8 @@ class TrainPipeline:
     def __init__(self):
         self.data_ingestion_config = DataIngestionConfig()
         self.data_processing_config = MakeDatasetConfig()
+        self.outlier_removing_config = RemoveOutlierConfig()
+        # self.features_config = FeaturesExtractionConfig()
 
     def start_data_ingestion(self) -> DataIngestionArtifact:
         """
@@ -70,11 +73,31 @@ class TrainPipeline:
 
             logging.info(f"Data processing completed. Processed data saved at: {data_processor.config.interim_dataset_dir}")
             logging.info("Exited the start_data_processing method of TrainPipeline class")
-            logging.info(f"\n>>>>>> stage {os.getenv('STAGE2')} started <<<<<<")
+            logging.info(f"\n>>>>>> stage {os.getenv('STAGE2')} ended <<<<<<")
             return data_processing_artifact, processed_data
 
         except Exception as e:
             raise MyException(e, sys)
+        
+    def start_removing_outliers(self):
+        try:
+            logging.info(f"\n>>>>>> stage {os.getenv('STAGE3')} started <<<<<<")
+            logging.info("Entered the start_removing_outliers method of TrainPipeline class")
+
+            logging.info("Entered the start_removing_outliers method of training pipeline")
+            logging.info("Initializing outlier removing pipeline.")
+            outlier = RemoveOutlier(outlier_removing_config=self.outlier_removing_config)
+
+            logging.info("outlier after removal")
+            outlier_df = outlier.remove_outliers(method=METHOD_CHAUVENET)
+            outlier.export_data()
+            logging.info("Exited the start_removing_outliers method of TrainPipeline class")
+            logging.info(f"\n>>>>>> stage {os.getenv('STAGE3')} ended <<<<<<")
+
+            return outlier_df
+        except Exception as e:
+            logging.error("Error in removing outliers: %s", str(e))
+            raise
 
 
     def run_pipeline(self) -> None:
@@ -90,6 +113,10 @@ class TrainPipeline:
             data_processing_artifact = self.start_data_processing()
             logging.info("Data processing completed.")
 
-            return data_ingestion_artifact, data_processing_artifact
+            removing_outlier = self.start_removing_outliers()
+            logging.info("Outlier Removed from the data successfully.")
+
+            logging.info("Training Pipeline Successfully Completed")
+            return data_ingestion_artifact, data_processing_artifact, removing_outlier
         except Exception as e:
             raise MyException(e, sys)

@@ -54,3 +54,23 @@ PROCESS_DATA_GYROSCOPE_PATTERN: str = "Gyroscope"
 PROCESS_DATA_INTERIM_DATA_DIR: str = "interim"
 PROCESS_DATA_META_MOTION_DIR: str = "MetaMotion"
 PROCESS_DATA_PROCESSED_FILE_NAME: str = "01_data_processed.pkl"
+
+"""
+---------------------------------------------------------------
+ Outlier Removing related constants start with OUTLIER_ var name
+---------------------------------------------------------------
+"""
+OUTLIER_PROCESSED_FILE_NAME: str = "01_data_processed.pkl"
+OUTLIER_INTERIM_DATA_DIR:str = "interim"
+OUTLIER_REMOVED_DATA_DIR = "outlier_removed"
+OUTLIER_REMOVED_FILE_NAME = "02_outliers_removed_chauvenets.pkl"
+OUTLIER_REPORTS = "outlier_reports"
+REPORTS_PATH = "reports"
+
+METHOD_IQR = "iqr"
+METHOD_LOF = "lof"
+METHOD_CHAUVENET = "chauvenet"
+
+FIGURE_SIZE = (20, 5)
+DPI = 100
+LINE_WIDTH = 2
