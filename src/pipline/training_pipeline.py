@@ -10,8 +10,8 @@ from src.logger import logging as logging
 from src.constants import *
 from src.entity.artifactEntity import *
 from src.entity.configEntity import *
-from src.components.data_processing.data_ingestion import IngestData
-from src.components.data_processing.data_processing import MakeDataset
+from src.data.data_ingestion import IngestData
+from src.data.data_processing import MakeDataset
 
 load_dotenv()
 
