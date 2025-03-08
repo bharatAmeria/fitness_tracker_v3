@@ -13,7 +13,8 @@ from src.entity.configEntity import *
 from src.data.data_ingestion import IngestData
 from src.data.data_processing import MakeDataset
 from src.data.removeOutlier import RemoveOutlier
-
+from src.features.buildFeatures import FeaturesExtraction
+from src.models.modelTrainer import ModelTrainer
 load_dotenv()
 
 class TrainPipeline:
@@ -21,7 +22,8 @@ class TrainPipeline:
         self.data_ingestion_config = DataIngestionConfig()
         self.data_processing_config = MakeDatasetConfig()
         self.outlier_removing_config = RemoveOutlierConfig()
-        # self.features_config = FeaturesExtractionConfig()
+        self.features_config = FeaturesExtractionConfig()
+        self.model_config = ModelTrainerConfig()
 
     def start_data_ingestion(self) -> DataIngestionArtifact:
         """
@@ -99,6 +101,34 @@ class TrainPipeline:
             logging.error("Error in removing outliers: %s", str(e))
             raise
 
+    def start_features_engg(self):
+        try:
+            logging.info("Entered the start_feature_engg method of training pipeline")
+            logging.info("Initializing feature_engg pipeline.")
+            feature = FeaturesExtraction(features_extraction_config=self.features_config)
+            export_features = feature.export_features()
+
+            return export_features
+        except Exception as e:
+            logging.error("Error in removing outliers: %s", str(e))
+            raise
+
+    def start_model_training(self):
+        try:
+            trainer = ModelTrainer(model_trainer_config=self.model_config)
+            data = trainer.load_data()
+            split_data = trainer.split_data_as_train_test()
+            prepare_features = trainer.prepare_feature_set()
+            # forward_pass = trainer.perform_forward_selection()
+            evaluate = trainer.evaluate_feature_sets()
+            train  = trainer.train_and_evaluate_model()
+
+            return data, split_data, prepare_features, evaluate, train
+
+        except Exception as e:
+            logging.error("Error in Model Training: %s", str(e))
+            raise
+
 
     def run_pipeline(self) -> None:
         """
@@ -116,7 +146,13 @@ class TrainPipeline:
             removing_outlier = self.start_removing_outliers()
             logging.info("Outlier Removed from the data successfully.")
 
+            featuresExtract = self.start_features_engg()
+            logging.info("Features Extareted Successfully Completed")
+
+            modelTraining = self.start_model_training()
+            logging.info("Model Training Successfully Completed")
+            
             logging.info("Training Pipeline Successfully Completed")
-            return data_ingestion_artifact, data_processing_artifact, removing_outlier
+            return data_ingestion_artifact, data_processing_artifact, removing_outlier, featuresExtract, modelTraining
         except Exception as e:
             raise MyException(e, sys)
