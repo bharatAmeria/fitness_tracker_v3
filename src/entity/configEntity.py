@@ -38,3 +38,25 @@ class RemoveOutlierConfig:
     root_dir = os.path.join(training_pipeline_config.artifact_dir, RAW_DATA_INGESTION_DIR_NAME, OUTLIER_INTERIM_DATA_DIR, OUTLIER_PROCESSED_FILE_NAME)
     outlier_removed_file_name = os.path.join(training_pipeline_config.artifact_dir, RAW_DATA_INGESTION_DIR_NAME, OUTLIER_INTERIM_DATA_DIR, OUTLIER_REMOVED_FILE_NAME)
     outlier_reports = os.path.join(training_pipeline_config.artifact_dir, REPORTS_PATH, OUTLIER_REPORTS)
+
+@dataclass
+class FeaturesExtractionConfig:
+    """Configuration for features extraction"""
+    root_dir = os.path.join(training_pipeline_config.artifact_dir, RAW_DATA_INGESTION_DIR_NAME, OUTLIER_INTERIM_DATA_DIR, OUTLIER_PROCESSED_FILE_NAME)
+    features_extracted_file_name = os.path.join(training_pipeline_config.artifact_dir, RAW_DATA_INGESTION_DIR_NAME, OUTLIER_INTERIM_DATA_DIR, FEATURES_EXTRACTED_FILE_NAME)
+
+@dataclass
+class ModelTrainerConfig:
+    data: str = os.path.join(training_pipeline_config.artifact_dir, RAW_DATA_INGESTION_DIR_NAME, OUTLIER_INTERIM_DATA_DIR, FEATURES_EXTRACTED_FILE_NAME)
+    max_features: int = MAX_FEATURES
+    selected_features = SELECTED_FEATURES
+    # model_trainer_dir: str = os.path.join(training_pipeline_config.artifact_dir, MODEL_TRAINER_DIR_NAME)
+    # trained_model_file_path: str = os.path.join(model_trainer_dir, MODEL_TRAINER_TRAINED_MODEL_DIR, MODEL_FILE_NAME)
+    # expected_accuracy: float = MODEL_TRAINER_EXPECTED_SCORE
+    # model_config_file_path: str = MODEL_TRAINER_MODEL_CONFIG_FILE_PATH
+    # _n_estimators = MODEL_TRAINER_N_ESTIMATORS
+    # _min_samples_split = MODEL_TRAINER_MIN_SAMPLES_SPLIT
+    # _min_samples_leaf = MODEL_TRAINER_MIN_SAMPLES_LEAF
+    # _max_depth = MIN_SAMPLES_SPLIT_MAX_DEPTH
+    # _criterion = MIN_SAMPLES_SPLIT_CRITERION
+    # _random_state = MIN_SAMPLES_SPLIT_RANDOM_STATE
