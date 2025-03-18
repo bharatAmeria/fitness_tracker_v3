@@ -118,12 +118,12 @@ class TrainPipeline:
             trainer = ModelTrainer(model_trainer_config=self.model_config)
             data = trainer.load_data()
             split_data = trainer.split_data_as_train_test()
-            prepare_features = trainer.prepare_feature_set()
+            prepare_features = trainer.prepare_feature_set() 
             # forward_pass = trainer.perform_forward_selection()
-            evaluate = trainer.evaluate_feature_sets()
-            train  = trainer.train_and_evaluate_model()
+            # evaluate = trainer.evaluate_feature_sets()
+            # train  = trainer.train()
 
-            return data, split_data, prepare_features, evaluate, train
+            return data, prepare_features, split_data
 
         except Exception as e:
             logging.error("Error in Model Training: %s", str(e))

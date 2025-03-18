@@ -2,7 +2,7 @@ import os
 from datetime import date
 from dotenv import load_dotenv
 from typing import Dict, List
-
+import pandas as pd
 load_dotenv()  # 
 
 """
@@ -70,13 +70,16 @@ REPORTS_PATH = "reports"
 METHOD_IQR = "iqr"
 METHOD_LOF = "lof"
 METHOD_CHAUVENET = "chauvenet"
-
+PREDICTOR_COLUMNS = ["acc_x", "acc_y", "acc_z", "gyr_x", "gyr_y", "gyr_z"]
+CLUSTER_COLUMNS = ["acc_x", "acc_y", "acc_z"]
+N_CLUSTERS=5
+K_RANGE=(2, 10)
 FIGURE_SIZE = (20, 5)
 DPI: int = 100
 LINE_WIDTH: int = 2
-FS: int = (1000 / 200)
 CUTTOFF: int =  1
-
+FS = int(1000 / 200)
+WS= int(2800 / 200)
 FEATURES_EXTRACTED_FILE_NAME: str = "03_data_features.pkl"
 
 """
