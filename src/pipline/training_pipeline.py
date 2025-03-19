@@ -35,7 +35,7 @@ class TrainPipeline:
             logging.info("Starting data ingestion.")
             wandb.log({"stage": "Data Ingestion"})
             
-            data_ingestion = IngestData(data_ingestion_config=self.data_ingestion_config, use_wandb=False)
+            data_ingestion = IngestData(data_ingestion_config=self.data_ingestion_config, use_wandb=True)
             data_ingestion_artifact = data_ingestion.download_file()
             data_ingestion.extract_zip_file()
             
@@ -49,7 +49,7 @@ class TrainPipeline:
             logging.info("Starting data processing.")
             wandb.log({"stage": "Data Processing"})
             
-            data_processor = MakeDataset(make_dataset_config=self.data_processing_config, use_wandb=False)
+            data_processor = MakeDataset(make_dataset_config=self.data_processing_config, use_wandb=True)
             processed_data = data_processor.process_and_save()
             
             
@@ -63,7 +63,7 @@ class TrainPipeline:
             logging.info("Removing outliers.")
             wandb.log({"stage": "Outlier Removal"})
             
-            outlier = RemoveOutlier(outlier_removing_config=self.outlier_removing_config, use_wandb=False)
+            outlier = RemoveOutlier(outlier_removing_config=self.outlier_removing_config, use_wandb=True)
             outlier_df = outlier.remove_outliers(method=METHOD_CHAUVENET)
             outlier.export_data()
             

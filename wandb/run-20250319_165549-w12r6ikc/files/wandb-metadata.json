@@ -1,0 +1,44 @@
+{
+  "os": "macOS-15.1-arm64-arm-64bit",
+  "python": "CPython 3.11.1",
+  "startedAt": "2025-03-19T11:25:49.717296Z",
+  "program": "/Users/bharataameriya/Documents/Project/fitness_tracker_v3/app.py",
+  "codePath": "app.py",
+  "git": {
+    "remote": "https://github.com/bharatAmeria/fitness_tracker_v3.git",
+    "commit": "94347d255de33aebdff61223a5d9c37654aca4ab"
+  },
+  "email": "bharataameriya@gmail.com",
+  "root": "/Users/bharataameriya/Documents/Project/fitness_tracker_v3",
+  "host": "Bharats-MacBook-Air.local",
+  "executable": "/Users/bharataameriya/Documents/Project/fitness_tracker_v3/tracker/bin/python3",
+  "codePathLocal": "app.py",
+  "cpu_count": 8,
+  "cpu_count_logical": 8,
+  "disk": {
+    "/": {
+      "total": "245107195904",
+      "used": "177143107584"
+    },
+    "/System/Volumes/Data": {
+      "total": "245107195904",
+      "used": "177143107584"
+    }
+  },
+  "memory": {
+    "total": "17179869184"
+  },
+  "cpu": {
+    "count": 8,
+    "countLogical": 8
+  },
+  "apple": {
+    "name": "Apple M1",
+    "ecpuCores": 4,
+    "pcpuCores": 4,
+    "gpuCores": 7,
+    "memoryGb": 16,
+    "swapTotalBytes": "1073741824",
+    "ramTotalBytes": "17179869184"
+  }
+}
