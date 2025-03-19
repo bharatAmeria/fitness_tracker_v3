@@ -1,20 +1,19 @@
-""" Impoting Python Libraries """
 import os
 import sys
+import wandb
+from dotenv import load_dotenv
 
-""" Importing Modules """
 from src.exception import MyException
-from src.logger import logging as logging
+from src.logger import logging
 
-""" Importing Classes """
 from src.constants import *
-from src.entity.artifactEntity import *
 from src.entity.configEntity import *
 from src.data.data_ingestion import IngestData
 from src.data.data_processing import MakeDataset
 from src.data.removeOutlier import RemoveOutlier
 from src.features.buildFeatures import FeaturesExtraction
 from src.models.modelTrainer import ModelTrainer
+
 load_dotenv()
 
 class TrainPipeline:
@@ -24,135 +23,99 @@ class TrainPipeline:
         self.outlier_removing_config = RemoveOutlierConfig()
         self.features_config = FeaturesExtractionConfig()
         self.model_config = ModelTrainerConfig()
-
-    def start_data_ingestion(self) -> DataIngestionArtifact:
-        """
-        This method of TrainPipeline class is responsible for starting data ingestion component
         
-        Returns:
-            DataIngestionArtifact: The artifact containing ingested data information
-        """
-        try:
-            logging.info(f"\n>>>>>> stage {os.getenv('STAGE1')} started <<<<<<")
-            logging.info("Entered the start_data_ingestion method of TrainPipeline class")
+        # Initialize WandB
+        wandb.init(project="model-training-pipeline", name="train-pipeline", config={
+            "data_source": os.getenv("DATA_SOURCE"),
+            "model_type": os.getenv("MODEL_TYPE"),
+        })
 
-            logging.info("Getting the raw_data from google drive")
-            data_ingestion = IngestData(data_ingestion_config=self.data_ingestion_config)
+    def start_data_ingestion(self):
+        try:
+            logging.info("Starting data ingestion.")
+            wandb.log({"stage": "Data Ingestion"})
+            
+            data_ingestion = IngestData(data_ingestion_config=self.data_ingestion_config, use_wandb=False)
             data_ingestion_artifact = data_ingestion.download_file()
             data_ingestion.extract_zip_file()
-
-            logging.info("Got the raw_data file in the artifact folder")
-            logging.info("Exited the start_data_ingestion method of TrainPipeline class")
-            logging.info(f">>>>>> stage {os.getenv('STAGE1')} ended <<<<<< \n ")
+            
+            wandb.log({"data_ingestion_status": "Completed"})
             return data_ingestion_artifact
         except Exception as e:
             raise MyException(e, sys)
-        
-    def start_data_processing(self) -> DataProcessingArtifact:
-        """
-        This method processes the raw sensor data and saves the processed data.
 
-        Returns:
-            DataProcessingArtifact: The artifact containing processed data information
-        """
+    def start_data_processing(self):
         try:
-            logging.info(f"\n>>>>>> stage {os.getenv('STAGE2')} started <<<<<<")
-            logging.info("Entered the start_data_processing method of TrainPipeline class")
-
-            logging.info("Initializing data processing")
-            data_processor = MakeDataset(make_dataset_config=self.data_processing_config)
-
-            logging.info("Starting data processing pipeline")
+            logging.info("Starting data processing.")
+            wandb.log({"stage": "Data Processing"})
+            
+            data_processor = MakeDataset(make_dataset_config=self.data_processing_config, use_wandb=False)
             processed_data = data_processor.process_and_save()
-
-            # Create a DataProcessingArtifact
-            data_processing_artifact = DataProcessingArtifact(
-                processed_file_path=data_processor.config.interim_dataset_dir,
-                is_processed=True,
-                message="Data processing completed successfully"
-            )
-            # data_processing_artifact = data_processing_artifact.
-
-            logging.info(f"Data processing completed. Processed data saved at: {data_processor.config.interim_dataset_dir}")
-            logging.info("Exited the start_data_processing method of TrainPipeline class")
-            logging.info(f"\n>>>>>> stage {os.getenv('STAGE2')} ended <<<<<<")
-            return data_processing_artifact, processed_data
-
+            
+            
+            wandb.log({"data_processing_status": "Completed"})
+            return processed_data
         except Exception as e:
             raise MyException(e, sys)
-        
+
     def start_removing_outliers(self):
         try:
-            logging.info(f"\n>>>>>> stage {os.getenv('STAGE3')} started <<<<<<")
-            logging.info("Entered the start_removing_outliers method of TrainPipeline class")
-
-            logging.info("Entered the start_removing_outliers method of training pipeline")
-            logging.info("Initializing outlier removing pipeline.")
-            outlier = RemoveOutlier(outlier_removing_config=self.outlier_removing_config)
-
-            logging.info("outlier after removal")
+            logging.info("Removing outliers.")
+            wandb.log({"stage": "Outlier Removal"})
+            
+            outlier = RemoveOutlier(outlier_removing_config=self.outlier_removing_config, use_wandb=False)
             outlier_df = outlier.remove_outliers(method=METHOD_CHAUVENET)
             outlier.export_data()
-            logging.info("Exited the start_removing_outliers method of TrainPipeline class")
-            logging.info(f"\n>>>>>> stage {os.getenv('STAGE3')} ended <<<<<<")
-
+            
+            wandb.log({"outlier_removal_status": "Completed"})
             return outlier_df
         except Exception as e:
-            logging.error("Error in removing outliers: %s", str(e))
-            raise
+            raise MyException(e, sys)
 
     def start_features_engg(self):
         try:
-            logging.info("Entered the start_feature_engg method of training pipeline")
-            logging.info("Initializing feature_engg pipeline.")
+            logging.info("Extracting features.")
+            wandb.log({"stage": "Feature Engineering"})
+            
             feature = FeaturesExtraction(features_extraction_config=self.features_config)
             export_features = feature.export_features()
-
+            
+            wandb.log({"feature_engineering_status": "Completed"})
             return export_features
         except Exception as e:
-            logging.error("Error in removing outliers: %s", str(e))
-            raise
+            raise MyException(e, sys)
 
     def start_model_training(self):
         try:
-            trainer = ModelTrainer(model_trainer_config=self.model_config)
-            data = trainer.load_data()
-            split_data = trainer.split_data_as_train_test()
-            prepare_features = trainer.prepare_feature_set() 
-            # forward_pass = trainer.perform_forward_selection()
-            # evaluate = trainer.evaluate_feature_sets()
-            # train  = trainer.train()
-
-            return data, prepare_features, split_data
-
-        except Exception as e:
-            logging.error("Error in Model Training: %s", str(e))
-            raise
-
-
-    def run_pipeline(self) -> None:
-        """
-        This method of TrainPipeline class is responsible for running complete pipeline
-        """
-        try:
-            logging.info("Starting the training pipeline.")
-
-            data_ingestion_artifact = self.start_data_ingestion()
-            logging.info("Data ingestion completed.")
-
-            data_processing_artifact = self.start_data_processing()
-            logging.info("Data processing completed.")
-
-            removing_outlier = self.start_removing_outliers()
-            logging.info("Outlier Removed from the data successfully.")
-
-            featuresExtract = self.start_features_engg()
-            logging.info("Features Extareted Successfully Completed")
-
-            modelTraining = self.start_model_training()
-            logging.info("Model Training Successfully Completed")
+            logging.info("Starting model training.")
+            wandb.log({"stage": "Model Training"})
             
-            logging.info("Training Pipeline Successfully Completed")
-            return data_ingestion_artifact, data_processing_artifact, removing_outlier, featuresExtract, modelTraining
+            trainer = ModelTrainer(model_trainer_config=self.model_config)
+            trainer.load_data()
+            trainer.split_data_as_train_test()
+            trainer.prepare_feature_set()
+            trainer.grid_search_model_selection()
+            
+            wandb.log({"model_training_status": "Completed"})
+            return
         except Exception as e:
             raise MyException(e, sys)
+
+    def run_pipeline(self) -> None:
+        try:
+            logging.info("Running the training pipeline.")
+            wandb.log({"pipeline_status": "Started"})
+            
+            self.start_data_ingestion()
+            self.start_data_processing()
+            self.start_removing_outliers()
+            self.start_features_engg()
+            self.start_model_training()
+            
+            wandb.log({"pipeline_status": "Completed"})
+            logging.info("Training pipeline completed successfully.")
+            return 
+        except Exception as e:
+            raise MyException(e, sys)
+        finally:
+            wandb.finish()
