@@ -16,7 +16,7 @@ training_pipeline_config: TrainingPipelineConfig = TrainingPipelineConfig()
 @dataclass
 class DataIngestionConfig:
     root_dir: str = os.path.join(training_pipeline_config.artifact_dir, RAW_DATA_INGESTION_DIR_NAME)
-    source_URL: str = os.path.join(root_dir, URL)
+    source_URL: str = "https://drive.google.com/file/d/11AXpnvTdbz4J7DElNtDVjVE3mvPkwDzA/view?usp=sharing"
     local_data_file: str = os.path.join(root_dir,  LOCAL_DATA_FILE)
     unzip_dir: str = os.path.join(root_dir, UNZIP_DIR)
 
