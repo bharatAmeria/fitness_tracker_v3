@@ -3,7 +3,7 @@ import pandas as pd
 import mlflow
 import time
 import mlflow.sklearn
-
+import joblib
 from src.utils.learningAlgorithms import ClassificationAlgorithms
 from sklearn.metrics import accuracy_score
 from src.constants import *
@@ -11,7 +11,6 @@ from src.logger import logging
 from src.exception import MyException
 from sklearn.model_selection import train_test_split
 from src.entity.configEntity import ModelTrainerConfig
-from mlflow.models.signature import infer_signature
 
 class ModelTrainer:
     """
@@ -126,106 +125,59 @@ class ModelTrainer:
             logging.error("ERROR: Failed to prepare feature sets.")
             raise MyException(e, sys)
         
-    def grid_search_model_selection(self):
+    def model_training(self):
         try:
             learner = ClassificationAlgorithms()
             
-            # ✅ Set MLflow Experiment
-            mlflow.set_experiment("Model_Selection_Experiment")
-
-            # ✅ Ensure MLflow Tracking URI is Set (Fallback to localhost)
-            mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000"))
 
             X_train, X_test, y_train, y_test = self.split_data_as_train_test()
-            selected_features, ordered_features, ordered_scores = learner.forward_selection(MAX_FEATURES, X_train, y_train)
-            feature_set_5 = selected_features
-            feature_set_1, feature_set_2, feature_set_3, feature_set_4, _ = self.prepare_feature_set()
 
-            possible_feature_sets = [
-                list(feature_set_1),
-                list(feature_set_2),
-                list(feature_set_3),
-                list(feature_set_4),
-                list(feature_set_5),
-            ]
+            _, _, _, feature_set_4, _ = self.prepare_feature_set()
 
-            feature_names = ["Feature Set 1", "Feature Set 2", 
-                            "Feature Set 3", "Feature Set 4", 
-                            "Selected Features",
-                            ]
 
-            best_model = None
-            best_model_name = None
-            best_accuracy = 0
+            start_time = time.time()
 
-            for i, f in zip(range(len(possible_feature_sets)), feature_names):
-                logging.info(f"Feature set: {i}")
-                selected_train_X = X_train[possible_feature_sets[i]]
-                selected_test_X = X_test[possible_feature_sets[i]]
+            _ ,class_test_y, _, model = learner.random_forest(X_train[feature_set_4], y_train, X_test[feature_set_4], gridsearch=True)
+            
+            accuracy  = accuracy_score(y_test, class_test_y) * 100
 
-                performance_scores = {}
+            performance_test_nb = accuracy_score(y_test, class_test_y) * 100
 
-                with mlflow.start_run():  # ✅ Start MLflow run
-                    for model_name, model_func in {
-                        "NN": learner.feedforward_neural_network,
-                        "RF": learner.random_forest,
-                        "KNN": learner.k_nearest_neighbor,
-                        "DT": learner.decision_tree,
-                        "NB": learner.naive_bayes
-                    }.items():
-                        start_time = time.time()  # ✅ Track Training Time
-                        accuracy = 0
+            end_time = time.time()
+            training_duration = end_time - start_time
 
-                        for it in range(ITERATIONS):
-                            logging.info(f"Training {model_name}, iteration: {it}")
-                            _, class_test_y, _, _ = model_func(selected_train_X, y_train, selected_test_X, gridsearch=True)
-                            accuracy += accuracy_score(y_test, class_test_y)
+            logging.info(f"Time taken for Training: {training_duration}") 
+            logging.info(f"Accuracy achieved: {accuracy} ")
+            logging.info(f"Performance on unseen data: {performance_test_nb} ")
 
-                        accuracy /= ITERATIONS
-                        end_time = time.time()
-                        training_duration = end_time - start_time  # ✅ Compute Training Time
-
-                        performance_scores[model_name] = accuracy
-
-                        # ✅ Log Model Metadata to MLflow
-                        mlflow.log_param("Feature Set", f)
-                        mlflow.log_metric(f"{model_name}_accuracy", accuracy)
-                        mlflow.log_metric(f"{model_name}_training_time", training_duration)
-                        mlflow.log_param("Number of Features", len(selected_train_X.columns))
-
-                        # ✅ Infer Signature & Log Model
-                        signature = infer_signature(selected_train_X, class_test_y)
-                        mlflow.sklearn.log_model(learner, f"{model_name}_model", signature=signature)
-
-                        # ✅ Track Best Model
-                        if accuracy > best_accuracy:
-                            best_accuracy = accuracy
-                            best_model = learner
-                            best_model_name = model_name
-
-                    logging.info(f"🏆 Best Model for Feature Set '{f}': {best_model_name} with Accuracy: {best_accuracy:.4f}")
-
-            # ✅ Register Best Model in MLflow & Move to Staging
-            if best_model:
-                model_uri = f"models:/{best_model_name}"
-                mlflow.register_model(model_uri, best_model_name)
-
-                client = mlflow.tracking.MlflowClient()
-                
-                # ✅ Automatically Retrieve Latest Model Version
-                latest_version = client.get_latest_versions(name=best_model_name, stages=["None"])[0].version
-
-                client.transition_model_version_stage(
-                    name=best_model_name,
-                    version=latest_version,
-                    stage="Staging"
-                )
-
-                logging.info(f"✅ Best Model '{best_model_name}' (Version {latest_version}) moved to Staging in MLflow.")
-
-                # ✅ Optional: Auto-Deploy Best Model After Staging
-                os.system(f"python deploy_model.py --model_name {best_model_name}")
+            return model
 
         except Exception as e:
-            logging.error("ERROR: Failed to prepare feature sets.", exc_info=True)
+            logging.error("Model selection and training failed.", exc_info=True)
             raise MyException(e, sys)
+        
+    def save_model(self):
+        """
+        Saves a trained model using joblib.
+
+        :param model: Trained model to be saved.
+        :param model_dir: Directory where the model should be saved.
+        :param model_filename: Name of the saved model file (default: "random_forest_model.pkl").
+        """
+        try:
+            logging.info("Saving the model...")
+            model = self.model_training()
+
+            os.makedirs(self.model_trainer_config.model, exist_ok=True)
+
+            # Define model path
+            model_path = os.path.join(self.model_trainer_config.model, "random_forest_model.pkl")
+
+            # Save the model
+            joblib.dump(model, model_path)
+
+            logging.info(f"Model saved successfully at: {model_path}")
+        
+        except Exception as e:
+            logging.error(f"Error saving the model: {e}")
+            raise

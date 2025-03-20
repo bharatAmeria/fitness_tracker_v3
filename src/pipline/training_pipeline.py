@@ -68,7 +68,7 @@ class TrainPipeline:
         try:
             logging.info("Removing outliers from the dataset.")
             
-            outlier = RemoveOutlier(outlier_removing_config=self.outlier_removing_config, use_wandb=False)
+            outlier = RemoveOutlier(outlier_removing_config=self.outlier_removing_config)
             outlier_df = outlier.remove_outliers(method=METHOD_CHAUVENET)
             outlier.export_data()
             
@@ -101,9 +101,7 @@ class TrainPipeline:
             
             trainer = ModelTrainer(model_trainer_config=self.model_config)
             trainer.load_data()
-            trainer.split_data_as_train_test()
-            trainer.prepare_feature_set()
-            trainer.grid_search_model_selection()
+            trainer.save_model()
             
             logging.info("Model training completed.")
             return
@@ -117,7 +115,7 @@ class TrainPipeline:
         try:
             logging.info("Running the training pipeline.")
             
-            with mlflow.start_run():
+            with mlflow.start_run(nested=True):
                 self.start_data_ingestion()
                 self.start_data_processing()
                 self.start_removing_outliers()

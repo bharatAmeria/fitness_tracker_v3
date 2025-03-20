@@ -19,12 +19,18 @@ pipeline {
             }
         }
 
+        stage('Test Environment') {
+            steps {
+                sh './tracker/bin/python testEnvironment.py'
+            }
+        }
+
         stage('Train Model') {
             steps {
                 sh './tracker/bin/python app.py'
             }
         }
-    }  // ✅ Properly closed 'stages' block
+    } 
 
     post {
         success {

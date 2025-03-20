@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Model Prediction</title>
+</head>
+<body>
+    <h2>Enter Sensor Data for Prediction</h2>
+    <form action="/predict" method="post">
+        <label for="acc_x">Acc X:</label>
+        <input type="text" name="acc_x" required><br>
+
+        <label for="acc_y">Acc Y:</label>
+        <input type="text" name="acc_y" required><br>
+
+        <label for="acc_z">Acc Z:</label>
+        <input type="text" name="acc_z" required><br>
+
+        <label for="gyr_x">Gyr X:</label>
+        <input type="text" name="gyr_x" required><br>
+
+        <label for="gyr_y">Gyr Y:</label>
+        <input type="text" name="gyr_y" required><br>
+
+        <label for="gyr_z">Gyr Z:</label>
+        <input type="text" name="gyr_z" required><br>
+
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction %}
+        <h3>Prediction: {{ prediction }}</h3>
+    {% endif %}
+
+    {% if error %}
+        <h3 style="color: red;">Error: {{ error }}</h3>
+    {% endif %}
+</body>
+</html>
