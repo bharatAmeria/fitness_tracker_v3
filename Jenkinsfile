@@ -8,22 +8,24 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/bharatAmeria/fitness_tracker_v3'
+                git branch: 'main', url: 'https://github.com/bharatAmeria/fitness_tracker_v3.git'
             }
         }
 
         stage('Setup Environment') {
             steps {
                 sh 'python3 -m venv $VENV_DIR'
-                sh './venv/bin/pip install -r requirements.txt'
+                sh './tracker/bin/pip install -r requirements.txt'
             }
         }
 
         stage('Train Model') {
             steps {
-                sh './venv/bin/python app.py'
+                sh './tracker/bin/python app.py'
             }
         }
+    }  // ✅ Properly closed 'stages' block
+
     post {
         success {
             echo '✅ Pipeline completed successfully!'
