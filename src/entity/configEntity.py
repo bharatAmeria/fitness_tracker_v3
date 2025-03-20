@@ -48,6 +48,5 @@ class FeaturesExtractionConfig:
 @dataclass
 class ModelTrainerConfig:
     data: str = os.path.join(training_pipeline_config.artifact_dir, RAW_DATA_INGESTION_DIR_NAME, OUTLIER_INTERIM_DATA_DIR, FEATURES_EXTRACTED_FILE_NAME)
-    model: str = os.path.join(training_pipeline_config.artifact_dir, MODEL_TRAINER_DIR_NAME)
+    model: str = os.path.join(MODEL_TRAINER_DIR_NAME)
     max_features: int = MAX_FEATURES
-    selected_features = SELECTED_FEATURES

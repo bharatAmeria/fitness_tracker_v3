@@ -250,6 +250,7 @@ class FeaturesExtraction:
             df_clean.to_pickle(self.feature_config.features_extracted_file_name)  # Export the df attribute
             logging.info(f"Data exported successfully to {self.feature_config.features_extracted_file_name}")
 
+            return df_clean
         except Exception as e:
             logging.error("Error in export_data method")
             raise MyException(e, sys)

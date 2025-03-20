@@ -11,6 +11,7 @@ from src.logger import logging
 from src.exception import MyException
 from sklearn.model_selection import train_test_split
 from src.entity.configEntity import ModelTrainerConfig
+from sklearn.ensemble import RandomForestClassifier
 
 class ModelTrainer:
     """

@@ -89,15 +89,4 @@ FEATURES_EXTRACTED_FILE_NAME: str = "03_data_features.pkl"
 """
 ITERATIONS: int = 1
 MAX_FEATURES: int = 10
-MODEL_TRAINER_DIR_NAME: str = "model.pkl"
-MODEL_NAME: str = "model"
-SELECTED_FEATURES = ["acc_z_freq_0.0_HZ_ws_14",
-                    "acc_x_freq_0.0_HZ_ws_14", 
-                    "gyr_r_pse", 
-                    "acc_y_freq_0.0_HZ_ws_14",
-                    "gyr_z_freq_0.714_HZ_ws_14", 
-                    "gyr_r_freq_1.071_HZ_ws_14", 
-                    "gyr_z_freq_0.357_HZ_ws_14", 
-                    "gyr_x_freq_1.071_HZ_ws_14",
-                    "acc_x_max_freq_","gyr_z_max_freq",
-                    ]
+MODEL_TRAINER_DIR_NAME: str = "model"
