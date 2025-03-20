@@ -1,49 +1,40 @@
-""" Importing Python Libraries"""
 import os
 import sys
 import zipfile
 import gdown
-import pandas as pd
 import time  
 import mlflow 
-import wandb
 
-""" Importing Modules"""
-from typing import Optional
 from src.exception import MyException
 from src.logger import logging
-
-""" Importing Classes"""
 from src.entity.configEntity import DataIngestionConfig
 
 class IngestData:
     """
-    Data ingestion class which ingests data from the source and returns a DataFrame.
+    Data ingestion class responsible for downloading and extracting data from a given source.
     """
 
-    def __init__(self, data_ingestion_config: DataIngestionConfig, use_wandb: bool = False):
+    def __init__(self, data_ingestion_config: DataIngestionConfig):
         """
-        Initialize the data ingestion class.
+        Initialize the IngestData class.
+        
         Args:
-            data_ingestion_config: Configuration for data ingestion
-            enable_wandb_logging: Flag to enable/disable WandB logging (default: False)
-            enable_mlflow_logging: Flag to enable/disable MLflow logging (default: False)
+            data_ingestion_config (DataIngestionConfig): Configuration object containing source URL, file paths, etc.
         """
         try:
             self.data_ingestion_config = data_ingestion_config
-            self.enable_wandb_logging = use_wandb
-
-            # ✅ Initialize WandB if enabled
-            if self.enable_wandb_logging:
-                import wandb
-                wandb.init(project="data_ingestion", name="data_pipeline")  
-
         except Exception as e:
             raise MyException(e, sys)
 
     def download_file(self) -> str:
         """
-        Fetch data from the URL and return the local file path.
+        Downloads a dataset from the provided Google Drive URL and saves it locally.
+        
+        Returns:
+            str: Path to the downloaded file.
+        
+        Raises:
+            MyException: If there is an error during download.
         """
         try:
             dataset_url = self.data_ingestion_config.source_URL
@@ -52,7 +43,6 @@ class IngestData:
             logging.info(f"Downloading to: {self.data_ingestion_config.local_data_file}")
 
             os.makedirs(zip_download_dir, exist_ok=True)
-
             start_time = time.time()
 
             file_id = dataset_url.split("/")[-2]
@@ -65,13 +55,10 @@ class IngestData:
 
             logging.info(f"Downloaded data from {dataset_url} into file {zip_download_dir}")
 
-            # ✅ Log to WandB if enabled
-            if self.enable_wandb_logging:
-                wandb.log({
-                    "download_time_sec": download_time,
-                    "file_size_MB": file_size,
-                    "dataset_url": dataset_url
-                })
+            # ✅ Log download details to MLflow
+            mlflow.log_metric("download_time_sec", download_time)
+            mlflow.log_metric("file_size_MB", file_size)
+            mlflow.log_param("dataset_url", dataset_url)
 
             return self.data_ingestion_config.local_data_file
 
@@ -80,7 +67,10 @@ class IngestData:
 
     def extract_zip_file(self) -> None:
         """
-        Extract the downloaded zip file.
+        Extracts the downloaded zip file to the specified directory.
+        
+        Raises:
+            MyException: If there is an error during extraction.
         """
         try:
             unzip_path = self.data_ingestion_config.unzip_dir
@@ -102,13 +92,9 @@ class IngestData:
 
             logging.info(f"Successfully extracted zip file to {unzip_path}")
 
-            # ✅ Log extraction time to WandB if enabled
-            if self.enable_wandb_logging:
-                wandb.log({
-                    "extraction_time_sec": extraction_time,
-                    "extracted_path": unzip_path
-                })
+            # ✅ Log extraction details to MLflow
+            mlflow.log_metric("extraction_time_sec", extraction_time)
+            mlflow.log_param("extracted_path", unzip_path)
 
         except Exception as e:
             raise MyException(e, sys)
-
