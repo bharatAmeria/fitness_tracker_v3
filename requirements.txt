@@ -6,7 +6,7 @@ filelock==3.17.0
 from-root==1.3.0
 gdown==5.2.0
 idna==3.10
-numpy==2.2.3
+numpy==2.0.2
 pandas==2.2.3
 PySocks==1.7.1
 python-dateutil==2.9.0.post0
@@ -15,8 +15,10 @@ pytz==2025.1
 requests==2.32.3
 six==1.17.0
 soupsieve==2.6
--e git+https://github.com/bharatAmeria/fitness_tracker_v3.git@bac1bfdf2e123c4c0f1bd8f831b605d5964c8e3f#egg=src
 tqdm==4.67.1
 typing_extensions==4.12.2
 tzdata==2025.1
 urllib3==2.3.0
+
+-e .
+
